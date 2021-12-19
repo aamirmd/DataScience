@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>Fractal Pattern</title>
+  <style type="text/css">
+body	{background-color: purple;}
+    
+p	{background-color: blue;
+	 color: yellow;}
+  </style>
+ </head>
+ <body>
+  <canvas width="600 px" height="600 px" id="can"></canvas>
+  <p id="ans">Display</p>
+  <script>
+   var can = document.getElementById("can");
+   var ctx = can.getContext('2d');
+   
+   var x = 100;
+   var y = 100;
+   var ratio = 0.99;			//rate of fractal change (dr/dt) 	*can change
+   var factor = 3;				//starting size amplification    	*can change
+   var theta = Math.PI/4;		//starting angle					*can change
+   var period = 36;				//rate of fractal change (dtheta/dt)*can change
+
+   function convergeX(m,a,b,t){		//based on the parameters (starting factor, ratio, period, and starting angle) respectively, find x-coordinate of fractal convergance
+	var convergeX = 0;
+	for(var i=0; i<2*b; i++){
+	 convergeX += Math.cos(((i*Math.PI)/b)+t)*(Math.pow(a,i)/(1-Math.pow(a,2*b)));
+	}
+	convergeX *= m;
+	return convergeX;
+   }
+   
+   function convergeY(m,a,b,t){		//based on the parameters (starting factor, ratio, period, and starting angle) respectively, find y-coordinate of fractal convergance
+	var convergeY = 0;
+	for(var i=0; i<2*b; i++){
+	 convergeY += Math.sin(((i*Math.PI)/b)+t)*(Math.pow(a,i)/(1-Math.pow(a,2*b)));
+	}
+	convergeY *= m;
+	return convergeY;
+   }
+
+   ctx.fillStyle = "#000000";     //initializes white colors
+   ctx.strokeStyle = "rgb(255,255,255)";
+   var red = 255;
+   var blue = 255;
+   var green = 255;
+   ctx.rect(0,0,600,600);
+   ctx.fill();
+   
+   function color(){						//slightly and randomly changes the color
+	red += Math.floor(5*Math.random())-2;
+	green += Math.floor(5*Math.random())-2;
+	blue += Math.floor(5*Math.random())-2;
+	if(red>254)
+		red-=3;
+	else if(red<1)
+		red+=3;
+	if(green>254)
+		green-=3;
+	else if(green<1)
+		green+=3;
+	if(blue>254)
+		blue-=3;
+	else if(blue<1)
+		blue+=3;
+	return "rgb("+red+","+green+","+blue+")";
+   }
+   
+   function animate(){
+    var tempT = theta;					//temporarily store the angle the fractal is rotated at
+	var tempF = factor;					//temporarily store the amplification
+	ctx.clearRect(0,0,600,600);			//clear screen to make new animation frame
+	ctx.fillRect(0,0,600,600);
+	x = 300 - (convergeX(7*factor,ratio,period,theta+Math.PI/4)+convergeX(15*factor,ratio,period,theta-Math.PI/2)+convergeX(7*factor,ratio,period,Math.PI/4+theta)+convergeX(5*factor,ratio,period,theta));  //make the fractal converge at horizontal center
+    y = 300 - (convergeY(7*factor,ratio,period,theta+Math.PI/4)+convergeY(15*factor,ratio,period,theta-Math.PI/2)+convergeY(7*factor,ratio,period,Math.PI/4+theta)+convergeY(5*factor,ratio,period,theta));	 //make the fractal converge at vertical center
+    ctx.beginPath();							//start drawing at the convergance point
+	ctx.moveTo(x,y);
+    for(var i=1; i<=800; i++){					//creates the path that the lines will fill to form fractal
+     x+=factor*7*Math.cos(theta+Math.PI/4);
+     y+=factor*7*Math.sin(theta+Math.PI/4);
+     ctx.lineTo(x,y);
+     x+=factor*15*Math.cos(theta-Math.PI/2);
+     y+=factor*15*Math.sin(theta-Math.PI/2);
+     ctx.lineTo(x,y);
+     x+=factor*7*Math.cos(theta+Math.PI/4);
+     y+=factor*7*Math.sin(theta+Math.PI/4);
+     ctx.lineTo(x,y);
+     x+=factor*5*Math.cos(theta);
+     y+=factor*5*Math.sin(theta);
+     ctx.lineTo(x,y);
+	 // 		*Creates this Pattern*
+	 //			 		|\_
+	 //			 		|  \
+     factor*=ratio;				//shrinks the pattern to make spiral shape
+     theta+=Math.PI/period;		//rotates the pattern to make spiral shape
+   }
+   ctx.strokeStyle = color();   //changes the color based on color randomizer
+   ctx.stroke();				//draws the actual path out
+   factor = 1*tempF;           //change 1 to a higher value to make animation gradually rotate faster
+   theta = tempT + Math.PI/20; //rotates entire fractal to give illusion of zooming in
+  }
+  setInterval(function(){animate();},16); //runs updated animation every 16 ms (~60 fps)
+  //animate();
+  </script>
+ </body>
+</html>
