@@ -1,2 +1,2 @@
-# Dgunawardana.github.io
+# DataScience
 Data science related projects.
